@@ -1,0 +1,61 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Database setup tasks for install-wordpress role
+
+- name: Start MariaDB service
+  service:
+    name: "{{ mysql_service }}"
+    state: started
+    enabled: yes
+
+- name: Wait for MariaDB to be ready
+  wait_for:
+    port: 3306
+    host: localhost
+    delay: 5
+    timeout: 60
+
+- name: Set MariaDB root password
+  mysql_user:
+    name: root
+    password: "{{ wordpress_db_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+
+- name: Remove anonymous users
+  mysql_user:
+    name: ''
+    host_all: yes
+    login_user: root
+    login_password: "{{ wordpress_db_root_password }}"
+    state: absent
+
+- name: Remove test database
+  mysql_db:
+    name: test
+    login_user: root
+    login_password: "{{ wordpress_db_root_password }}"
+    state: absent
+
+- name: Create WordPress database
+  mysql_db:
+    name: "{{ wordpress_db_name }}"
+    login_user: root
+    login_password: "{{ wordpress_db_root_password }}"
+    state: present
+
+- name: Create WordPress database user
+  mysql_user:
+    name: "{{ wordpress_db_user }}"
+    password: "{{ wordpress_db_password }}"
+    priv: "{{ wordpress_db_name }}.*:ALL"
+    host: "{{ wordpress_db_host }}"
+    login_user: root
+    login_password: "{{ wordpress_db_root_password }}"
+    state: present
+
+- name: Flush privileges
+  mysql_query:
+    query: "FLUSH PRIVILEGES"
+    login_user: root
+    login_password: "{{ wordpress_db_root_password }}"

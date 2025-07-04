@@ -1,26 +1,26 @@
+#SPDX-License-Identifier: MIT-0
 ---
-- name: Install required packages on Debian/Ubuntu
-  apt:
-    name:
-      - apache2
-      - php
-      - libapache2-mod-php
-      - php-mysql
-      - mariadb-server
-      - wget
-      - unzip
-    update_cache: yes
-    state: present
-  when: ansible_facts['os_family'] == "Debian"
+# Package installation tasks for install-wordpress role
 
-- name: Install required packages on Rocky/RedHat
-  dnf:
-    name:
-      - httpd
-      - php
-      - php-mysqlnd
-      - mariadb-server
-      - wget
-      - unzip
+- name: Update package cache (Debian/Ubuntu)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install packages (Debian/Ubuntu)
+  apt:
+    name: "{{ wordpress_packages_debian }}"
     state: present
-  when: ansible_facts['os_family'] == "RedHat"
+  when: ansible_os_family == "Debian"
+
+- name: Install packages (RedHat/Rocky)
+  yum:
+    name: "{{ wordpress_packages_redhat }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Remove default Apache index page
+  file:
+    path: "{{ wordpress_path }}/index.html"
+    state: absent

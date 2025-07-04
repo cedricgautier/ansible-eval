@@ -1,6 +1,32 @@
-- name: Test WordPress Role
+---
+- name: Deploy WordPress with MariaDB
   hosts: all
   become: true
+  vars:
+    wordpress_db_name: "production_blog"
+    wordpress_db_user: "wp_admin"
+    wordpress_db_password: "SecurePassword123!"
+    wordpress_db_root_password: "RootPassword123!"
+    apache_server_admin: "admin@company.com"
 
   roles:
     - install-wordpress
+    
+  post_tasks:
+    - name: Display WordPress installation information
+      debug:
+        msg: |
+          WordPress Installation Complete!
+          
+          Access your WordPress site at:
+          http://{{ ansible_default_ipv4.address if ansible_default_ipv4 else inventory_hostname }}
+          
+          Database Details:
+          - Database Name: {{ wordpress_db_name }}
+          - Database User: {{ wordpress_db_user }}
+          - Installation Path: {{ wordpress_path }}
+          
+          Next Steps:
+          1. Access the WordPress setup wizard in your browser
+          2. Complete the WordPress installation
+          3. Configure your WordPress site settings

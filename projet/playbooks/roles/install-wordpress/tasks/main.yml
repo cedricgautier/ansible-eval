@@ -1,4 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for install-wordpress
+- import_tasks: tests-ping.yml
 - import_tasks: install_packages.yml
+# - import_tasks: database.yml
+# - import_tasks: wordpress.yml
+# - import_tasks: apache.yml

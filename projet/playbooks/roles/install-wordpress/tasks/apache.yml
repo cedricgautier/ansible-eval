@@ -1,0 +1,49 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Apache configuration tasks for install-wordpress role
+
+- name: Start Apache service (Debian/Ubuntu)
+  service:
+    name: "{{ apache_service_debian }}"
+    state: started
+    enabled: yes
+  when: ansible_os_family == "Debian"
+
+- name: Start Apache service (RedHat/Rocky)
+  service:
+    name: "{{ apache_service_redhat }}"
+    state: started
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Create WordPress Apache virtual host (Debian/Ubuntu)
+  template:
+    src: wordpress-debian.conf.j2
+    dest: "/etc/apache2/sites-available/{{ apache_site_name }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Enable WordPress site (Debian/Ubuntu)
+  command: a2ensite {{ apache_site_name }}.conf
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Enable rewrite module (Debian/Ubuntu)
+  apache2_module:
+    name: rewrite
+    state: present
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Create WordPress Apache virtual host (RedHat/Rocky)
+  template:
+    src: wordpress-redhat.conf.j2
+    dest: "/etc/httpd/conf.d/{{ apache_site_name }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_os_family == "RedHat"
+  notify: restart apache

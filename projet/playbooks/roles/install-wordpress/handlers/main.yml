@@ -1,3 +1,18 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # handlers file for install-wordpress
+
+- name: restart apache
+  service:
+    name: "{{ apache_service_debian if ansible_os_family == 'Debian' else apache_service_redhat }}"
+    state: restarted
+
+- name: restart mysql
+  service:
+    name: "{{ mysql_service }}"
+    state: restarted
+
+- name: reload apache
+  service:
+    name: "{{ apache_service_debian if ansible_os_family == 'Debian' else apache_service_redhat }}"
+    state: reloaded

@@ -1,6 +1,50 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- hosts: localhost
-  remote_user: root
+- name: Test install-wordpress role
+  hosts: localhost
+  become: yes
+  vars:
+    wordpress_db_name: "test_wordpress"
+    wordpress_db_user: "test_user"
+    wordpress_db_password: "TestPassword123!"
+    wordpress_db_root_password: "RootPassword123!"
+    apache_server_admin: "test@example.com"
+  
   roles:
     - install-wordpress
+  
+  post_tasks:
+    - name: Verify Apache is running
+      service:
+        name: "{{ apache_service_debian if ansible_os_family == 'Debian' else apache_service_redhat }}"
+        state: started
+      register: apache_status
+    
+    - name: Verify MariaDB is running
+      service:
+        name: "{{ mysql_service }}"
+        state: started
+      register: mysql_status
+    
+    - name: Check WordPress files exist
+      stat:
+        path: "{{ wordpress_path }}/wp-config.php"
+      register: wp_config
+    
+    - name: Verify WordPress database exists
+      mysql_db:
+        name: "{{ wordpress_db_name }}"
+        login_user: root
+        login_password: "{{ wordpress_db_root_password }}"
+        state: present
+      register: db_check
+    
+    - name: Display test results
+      debug:
+        msg: |
+          Test Results:
+          - Apache Status: {{ apache_status.state }}
+          - MariaDB Status: {{ mysql_status.state }}
+          - WordPress Config Exists: {{ wp_config.stat.exists }}
+          - Database Exists: {{ db_check is not failed }}
+          - WordPress URL: http://{{ ansible_default_ipv4.address if ansible_default_ipv4 else 'localhost' }}

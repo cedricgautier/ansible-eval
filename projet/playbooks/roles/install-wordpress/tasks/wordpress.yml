@@ -1,0 +1,61 @@
+#SPDX-License-Identifier: MIT-0
+---
+# WordPress installation tasks for install-wordpress role
+
+- name: Download WordPress
+  get_url:
+    url: "{{ wordpress_url }}"
+    dest: /tmp/wordpress.zip
+    mode: '0644'
+
+- name: Extract WordPress
+  unarchive:
+    src: /tmp/wordpress.zip
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy WordPress files to web directory
+  copy:
+    src: /tmp/wordpress/
+    dest: "{{ wordpress_path }}/"
+    owner: www-data
+    group: www-data
+    mode: '0755'
+    remote_src: yes
+  when: ansible_os_family == "Debian"
+
+- name: Copy WordPress files to web directory (RedHat)
+  copy:
+    src: /tmp/wordpress/
+    dest: "{{ wordpress_path }}/"
+    owner: apache
+    group: apache
+    mode: '0755'
+    remote_src: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Create wp-config.php from template
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wordpress_path }}/wp-config.php"
+    owner: www-data
+    group: www-data
+    mode: '0640'
+  when: ansible_os_family == "Debian"
+
+- name: Create wp-config.php from template (RedHat)
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wordpress_path }}/wp-config.php"
+    owner: apache
+    group: apache
+    mode: '0640'
+  when: ansible_os_family == "RedHat"
+
+- name: Clean up temporary files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/wordpress.zip
+    - /tmp/wordpress

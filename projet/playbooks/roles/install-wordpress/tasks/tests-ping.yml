@@ -1,0 +1,4 @@
+---
+- name: Ping all hosts
+  ping:
+    data: "Hello, World!"

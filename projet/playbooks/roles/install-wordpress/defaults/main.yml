@@ -1,3 +1,45 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for install-wordpress
+
+# Database configuration
+wordpress_db_name: "wordpress"
+wordpress_db_user: "example"
+wordpress_db_password: "P@ssw0rd"
+wordpress_db_root_password: "P@ssw0rd"
+wordpress_db_host: "localhost"
+
+# WordPress configuration
+wordpress_version: "latest"
+wordpress_path: "/var/www/html"
+wordpress_url: "https://wordpress.org/latest.zip"
+
+# Apache configuration
+apache_document_root: "/var/www/html"
+apache_server_admin: "admin@localhost"
+apache_site_name: "wordpress"
+
+# System packages
+wordpress_packages_debian:
+  - apache2
+  - php
+  - libapache2-mod-php
+  - php-mysql
+  - mariadb-server
+  - wget
+  - unzip
+  - python3-pymysql
+
+wordpress_packages_redhat:
+  - httpd
+  - php
+  - php-mysqlnd
+  - mariadb-server
+  - wget
+  - unzip
+  - python3-PyMySQL
+
+# Services
+apache_service_debian: "apache2"
+apache_service_redhat: "httpd"
+mysql_service: "mariadb"
