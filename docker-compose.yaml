@@ -1,0 +1,49 @@
+---
+
+services:
+  ansible:
+    hostname: ansible
+    # image: ftutorials/ubuntu-ssh:1.0
+    build:
+      context: .
+      dockerfile: ubuntu-ansible/Dockerfile
+    container_name: ansible
+    platform: linux/amd64
+    ports:
+      - "2222:22"
+      - "80:80" 
+    volumes:
+      - ./projet:/root/projet
+    networks:
+      - ansible_net
+
+  client1:
+    hostname: client1
+    # image: ftutorials/ubuntu-ssh:1.0
+    build: ./ubuntu-ssh
+    container_name: client1
+    platform: linux/amd64
+    ports:
+      - "2223:22"
+      - "3003:3000" 
+      - "8083:80" 
+    networks:
+      - ansible_net
+
+  client2:
+    hostname: client2
+    # image: ftutorials/rocky-ssh:1.0
+    build: ./rocky-ssh
+    container_name: client2
+    platform: linux/amd64
+    ports:
+      - "2225:22"
+      - "3005:3000"
+      - "8085:80" 
+    networks:
+      - ansible_net
+
+
+networks:
+  ansible_net:
+    driver: bridge 

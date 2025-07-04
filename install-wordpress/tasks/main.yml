@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for install-wordpress
+---
+- import_tasks: install_packages.yml
+- import_tasks: setup_mariadb.yml
+- import_tasks: install_wordpress.yml
+- import_tasks: configure_apache.yml

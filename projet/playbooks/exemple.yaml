@@ -1,0 +1,6 @@
+- name: Test WordPress Role
+  hosts: all
+  become: true
+
+  roles:
+    - install-wordpress
